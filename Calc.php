@@ -1,164 +1,154 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Калькулятор</h1>
+<form method="post">
+    <div class="inputs">
+        <input type="number" name="a" placeholder="Введіть перше число">
+        <select name="operation">
+            <option value="add">+</option>
+            <option value="subtract">-</option>
+            <option value="multiply">*</option>
+            <option value="divide">/</option>
+            <option value="sqrt">√</option>
+            <option value="pow">^</option>
+            <option value="percent">%</option>
+        </select>
+        <input type="number" name="b" placeholder="Введіть друге число">
+    </div>
+    <button type="submit" class="button">Обчислити</button>
+</form>
+
 <?php
 
 class Calc {
-    private $errors = [];
+
+    private function checkNumber($number) {
+        if (!is_numeric($number)) {
+            throw new Exception("Невірний формат числа: $number");
+        }
+    }
 
     public function add($a, $b) {
-        if (!is_numeric($a) || !is_numeric($b)) {
-            $this->errors[] = 'Введені не числа.';
-            return;
-        }
+        $this->checkNumber($a);
+        $this->checkNumber($b);
         return $a + $b;
     }
 
     public function subtract($a, $b) {
-        if (!is_numeric($a) || !is_numeric($b)) {
-            $this->errors[] = 'Введені не числа.';
-            return;
-        }
+        $this->checkNumber($a);
+        $this->checkNumber($b);
         return $a - $b;
     }
 
     public function multiply($a, $b) {
-        if (!is_numeric($a) || !is_numeric($b)) {
-            $this->errors[] = 'Введені не числа.';
-            return;
-        }
+        $this->checkNumber($a);
+        $this->checkNumber($b);
         return $a * $b;
     }
 
     public function divide($a, $b) {
-        if (!is_numeric($a) || !is_numeric($b)) {
-            $this->errors[] = 'Введені не числа.';
-            return;
-        }
-        if ($b === 0) {
-            $this->errors[] = 'Ділення на 0 неможливе.';
-            return;
+        $this->checkNumber($a);
+        $this->checkNumber($b);
+        if ($b == 0) {
+            throw new Exception("Ділення на нуль!");
         }
         return $a / $b;
     }
 
     public function modulo($a, $b) {
-        if (!is_numeric($a) || !is_numeric($b)) {
-            $this->errors[] = 'Введені не числа.';
-            return;
-        }
+        $this->checkNumber($a);
+        $this->checkNumber($b);
         return $a % $b;
     }
 
     public function sqrt($a) {
-        if (!is_numeric($a)) {
-            $this->errors[] = 'Введене не число.';
-            return;
-        }
+        $this->checkNumber($a);
         if ($a < 0) {
-            $this->errors[] = 'Корінь квадратний з від`ємного числа не існує.';
-      return;
+            throw new Exception("Не можна добувати квадратний корінь з від'ємного числа!");
+        }
+        return sqrt($a);
     }
-    return sqrt($a);
-  }
 
-  public function pow($a, $b) {
-    if (!is_numeric($a) || !is_numeric($b)) {
-      $this->errors[] = 'Введені не числа.';
-      return;
+    public function pow($a, $b) {
+        $this->checkNumber($a);
+        $this->checkNumber($b);
+        return pow($a, $b);
     }
-    return pow($a, $b);
-  }
 
-  public function getErrors() {
-    return $this->errors;
-  }
+    public function percent($a, $b) {
+        $this->checkNumber($a);
+        $this->checkNumber($b);
+        return $a * $b / 100;
+    }
 }
 
 class CalcDispatcher {
-  private $calc;
 
-  public function __construct() {
+private $calc;
+
+public function __construct() {
     $this->calc = new Calc();
-  }
+}
 
-  public function display() {
-    $result = null;
-    $errors = [];
+public function display() {
+?>
 
-    if (isset($_POST['operation']) && isset($_POST['a']) && isset($_POST['b'])) {
-      $operation = $_POST['operation'];
-      $a = $_POST['a'];
-      $b = $_POST['b'];
+<?php
+if (isset($_POST['a']) && isset($_POST['b']) && isset($_POST['operation'])) {
+    try {
+        $a = $_POST['a'];
+        $b = $_POST['b'];
+        $operation = $_POST['operation'];
 
-      switch ($operation) {
-        case '+':
-          $result = $this->calc->add($a, $b);
-          break;
-        case '-':
-          $result = $this->calc->subtract($a, $b);
-          break;
-        case '*':
-          $result = $this->calc->multiply($a, $b);
-          break;
-        case '/':
-          $result = $this->calc->divide($a, $b);
-          break;
-        case '%':
-          $result = $this->calc->modulo($a, $b);
-          break;
-        case 'sqrt':
-          $result = $this->calc->sqrt($a);
-          break;
-        case '^':
-          $result = $this->calc->pow($a, $b);
-          break;
-      }
+        $result = null;
+        switch ($operation) {
+            case 'add':
+                $result = $this->calc->add($a, $b);
+                break;
+            case 'subtract':
+                $result = $this->calc->subtract($a, $b);
+                break;
+            case 'multiply':
+                $result = $this->calc->multiply($a, $b);
+                break;
+            case 'divide':
+                $result = $this->calc->divide($a, $b);
+                break;
+            case 'sqrt':
+                $result = "√($a) = " . $this->calc->sqrt($a) . "<br>√($b) = " . $this->calc->sqrt($b);
+                break;
+            case 'pow':
+                $result = $this->calc->pow($a, $b);
+                break;
+            case 'percent':
+                $result = $this->calc->percent($a, $b);
+                break;
+        }
 
-      $errors = $this->calc->getErrors();
+        echo "<p class='result'>Результат: $result</p>";
+    } catch (Exception $e) {
+        echo "<p style='color: red'>" . $e->getMessage() . "</p>";
     }
-
+}
     ?>
 
-    <!DOCTYPE html>
-    <html lang="uk">
-    <head>
-      <meta charset="UTF-8">
-      <title>Калькулятор</title>
-    </head>
-    <body>
-      <h1>Калькулятор</h1>
-      <form method="post">
-        <input type="number" name="a" placeholder="Введіть перше число">
-        <select name="operation">
-          <option value="+">+</option>
-          <option value="-">-</option>
-          <option value="*">*</option>
-          <option value="/">/</option>
-            <option value="%">%</option>
-            <option value="sqrt">√</option>
-            <option value="^">^</option>
-        </select>
-          <input type="number" name="b" placeholder="Введіть друге число">
-          <button type="submit">Рахувати</button>
-      </form>
-
-      <?php if ($errors): ?>
-          <ul class="errors">
-              <?php foreach ($errors as $error): ?>
-                  <li><?= $error ?></li>
-              <?php endforeach; ?>
-          </ul>
-      <?php endif; ?>
-
-      <?php if (isset($result)): ?>
-          <p>Результат: <?= $result ?></p>
-      <?php endif; ?>
-    </body>
-      </html>
-
-      <?php
-  }
+    <?php
+}
 }
 
 $dispatcher = new CalcDispatcher();
 $dispatcher->display();
 
 ?>
+
+<div class="footer">
+    <a href="index.html" class="button">Назад</a>
+</div>
+</body>
+</html>

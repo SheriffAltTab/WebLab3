@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Форма користувача</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>Форма користувача</h1>
@@ -20,7 +21,9 @@
     <input type="email" id="email" name="email" required>
     <br>
     <br>
-    <button type="submit">Готово</button>
+    <div class="buttons">
+        <button type="submit" class="button">Готово</button>
+    </div>
 </form>
 
 <?php
@@ -66,5 +69,9 @@ if (isset($_POST["lastName"]) && isset($_POST["firstName"]) && isset($_POST["age
     }
 }
 ?>
+
+<div class="footer">
+    <a href="index.html" class="button">Назад</a>
+</div>
 </body>
 </html>

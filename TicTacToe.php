@@ -1,5 +1,27 @@
 <?php
+// Перевірка, чи сесія вже розпочата
+if (headers_sent()) {
+    echo "<p style='color: red'>Помилка: Сесія не може бути розпочата, тому що заголовки вже відправлені.</p>";
+    exit;
+}
+
 session_start();
+
+// ...
+
+?>
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Хрестики нулики</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Хрестики нулики</h1>
+
+<?php
 
 class GameBoard {
     public static function display($board) {
@@ -67,12 +89,12 @@ if (isset($_GET['row']) && isset($_GET['col'])) {
     $board = PlayerInput::processInput($board, $row, $col, $player);
 
     if (GameLogic::checkWinner($board, $player)) {
-        echo "Гравець $player переміг!";
+        echo "<p class='winner'>Гравець $player переміг!</p>";
         $board = GameLogic::initializeBoard();
     } elseif (array_reduce($board, function ($carry, $item) {
         return $carry && !in_array('-', $item);
     }, true)) {
-        echo "Нічия!";
+        echo "<p class='draw'>Нічия!</p>";
         $board = GameLogic::initializeBoard();
     } else {
         $player = $player == 'X' ? 'O' : 'X';
@@ -85,3 +107,11 @@ $_SESSION['player'] = $player;
 // Display the game board
 GameBoard::display($board);
 ?>
+
+<p>Хід гравця: <?php echo $player; ?></p>
+
+<div class="footer">
+    <a href="index.html" class="button">Назад</a>
+</div>
+</body>
+</html>
