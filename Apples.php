@@ -62,9 +62,7 @@ class Apple
     }
 }
 
-
 $apple_1 = new Apple('green');
-
 
 echo $apple_1;
 
@@ -85,10 +83,6 @@ $apple_2 = new Apple('red');
 
 
 echo $apple_2;
-
-
-
-
 
 $apple_1->fall_to_ground();
 echo "<p>Яблуко впало</p>";
